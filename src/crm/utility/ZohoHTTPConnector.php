@@ -47,6 +47,9 @@ class ZohoHTTPConnector
             curl_setopt($curl_pointer, CURLOPT_URL, self::getUrl());
             
         }
+        // BRENT - Added SSL_VERIFYHOST and SSL_VERIFYPEER
+        curl_setopt($curl_pointer, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curl_pointer, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl_pointer, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl_pointer, CURLOPT_HEADER, 1);
         curl_setopt($curl_pointer, CURLOPT_USERAGENT, $this->userAgent);

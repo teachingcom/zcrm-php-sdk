@@ -10,15 +10,16 @@ use zcrmsdk\oauth\utility\ZohoOAuthTokens;
 
 class ZohoOAuthPersistenceHandler implements ZohoOAuthPersistenceInterface
 {
-    
+    // File updated by BRENT 7/5/2022 - changed name of DB table and connection to match our DB naming convention
+
     public function saveOAuthData($zohoOAuthTokens)
     {
         $db_link = null;
         try {
             self::deleteOAuthTokens($zohoOAuthTokens->getUserEmailId());
             $db_link = self::getMysqlConnection();
-            $query = "INSERT INTO oauthtokens(useridentifier,accesstoken,refreshtoken,expirytime) VALUES('" . $zohoOAuthTokens->getUserEmailId() . "','" . $zohoOAuthTokens->getAccessToken() . "','" . $zohoOAuthTokens->getRefreshToken() . "'," . $zohoOAuthTokens->getExpiryTime() . ")";
-            
+            $query = "INSERT INTO zoho_oauthtokens(user_mail,access_token,refresh_token,expiry_time) VALUES('" . $zohoOAuthTokens->getUserEmailId() . "','" . $zohoOAuthTokens->getAccessToken() . "','" . $zohoOAuthTokens->getRefreshToken() . "'," . $zohoOAuthTokens->getExpiryTime() . ")";
+
             $result = mysqli_query($db_link, $query);
             if (! $result) {
                 Logger::severe("OAuth token insertion failed: (" . $db_link->errno . ") " . $db_link->error);
@@ -31,14 +32,14 @@ class ZohoOAuthPersistenceHandler implements ZohoOAuthPersistenceInterface
             }
         }
     }
-    
+
     public function getOAuthTokens($userEmailId)
     {
         $db_link = null;
         $oAuthTokens = new ZohoOAuthTokens();
         try {
             $db_link = self::getMysqlConnection();
-            $query = "SELECT * FROM oauthtokens where useridentifier='" . $userEmailId . "'";
+            $query = "SELECT user_mail, access_token, refresh_token, expiry_time FROM zoho_oauthtokens where user_mail='" . $userEmailId . "'";
             $resultSet = mysqli_query($db_link, $query);
             if (! $resultSet) {
                 Logger::severe("Getting result set failed: (" . $db_link->errno . ") " . $db_link->error);
@@ -61,13 +62,13 @@ class ZohoOAuthPersistenceHandler implements ZohoOAuthPersistenceInterface
         }
         return $oAuthTokens;
     }
-    
+
     public function deleteOAuthTokens($userEmailId)
     {
         $db_link = null;
         try {
             $db_link = self::getMysqlConnection();
-            $query = "DELETE FROM oauthtokens where useridentifier='" . $userEmailId . "'";
+            $query = "DELETE FROM zoho_oauthtokens where user_mail='" . $userEmailId . "'";
             $resultSet = mysqli_query($db_link, $query);
             if (! $resultSet) {
                 Logger::severe("Deleting  oauthtokens failed: (" . $db_link->errno . ") " . $db_link->error);
@@ -80,10 +81,10 @@ class ZohoOAuthPersistenceHandler implements ZohoOAuthPersistenceInterface
             }
         }
     }
-    
+
     public function getMysqlConnection()
     {
-        $mysqli_con = new \mysqli(ZohoOAuth::getConfigValue(ZohoOAuthConstants::HOST_ADDRESS).":". ZohoOAuth::getConfigValue(ZohoOAuthConstants::DATABASE_PORT), ZohoOAuth::getConfigValue(ZohoOAuthConstants::DATABASE_USERNAME), ZohoOAuth::getConfigValue(ZohoOAuthConstants::DATABASE_PASSWORD), ZohoOAuth::getConfigValue(ZohoOAuthConstants::DATABASE_NAME));
+        $mysqli_con = new \mysqli(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
         if ($mysqli_con->connect_errno) {
             Logger::severe("Failed to connect to MySQL: (" . $mysqli_con->connect_errno . ") " . $mysqli_con->connect_error);
             echo "Failed to connect to MySQL: (" . $mysqli_con->connect_errno . ") " . $mysqli_con->connect_error;
