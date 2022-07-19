@@ -84,6 +84,7 @@ class ZohoOAuthPersistenceHandler implements ZohoOAuthPersistenceInterface
 
     public function getMysqlConnection()
     {
+        var_dump([ZohoOAuth::getConfigValue('DB_HOST'), ZohoOAuth::getConfigValue('DB_USERNAME'), ZohoOAuth::getConfigValue('DB_PASSWORD'), ZohoOAuth::getConfigValue('DB_DATABASE')]);
         $mysqli_con = new \mysqli(ZohoOAuth::getConfigValue('DB_HOST'), ZohoOAuth::getConfigValue('DB_USERNAME'), ZohoOAuth::getConfigValue('DB_PASSWORD'), ZohoOAuth::getConfigValue('DB_DATABASE'));
         if ($mysqli_con->connect_errno) {
             Logger::severe("Failed to connect to MySQL: (" . $mysqli_con->connect_errno . ") " . $mysqli_con->connect_error);
